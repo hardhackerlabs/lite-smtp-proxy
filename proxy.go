@@ -5,6 +5,7 @@ import (
 	"errors"
 	"io"
 	"io/ioutil"
+	"log"
 	"os"
 
 	"github.com/emersion/go-sasl"
@@ -60,6 +61,7 @@ func (s *Session) Rcpt(to string) error {
 func (s *Session) Data(r io.Reader) error {
 	b, err := ioutil.ReadAll(r)
 	if err != nil {
+		log.Printf("failed to read data: %s, %s, %s (%s)", s.upstream, s.from, s.to, err)
 		return err
 	}
 	s.data = b
@@ -73,9 +75,11 @@ func (s *Session) Logout() error {
 	defer s.reset()
 
 	if s.user == "" || s.password == "" || s.from == "" || s.to == "" || s.data == nil {
+		log.Printf("not send mail: %s, \"%s\", \"%s\" (empty)", s.upstream, s.from, s.to)
 		return nil
 	}
 	if err := s.toUpstream(); err != nil {
+		log.Printf("failed to send mail: %s, %s, %s (%s)", s.upstream, s.from, s.to, err)
 		return err
 	}
 
@@ -96,5 +100,6 @@ func (s *Session) toUpstream() error {
 	if err := smtp.SendMail(s.upstream, auth, s.from, []string{s.to}, rd); err != nil {
 		return err
 	}
+	log.Printf("send mail: %s, %s (%d)", s.from, s.to, len(s.data))
 	return nil
 }
