@@ -3,7 +3,7 @@ A lite smtp proxy that can be used to proxy SES.
 
 ## Build
 `
-go build .
+make
 `
 
 ## Setup
