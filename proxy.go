@@ -28,12 +28,14 @@ func (b *Backend) init() error {
 
 func (b *Backend) NewSession(conn *smtp.Conn) (smtp.Session, error) {
 	return &Session{
+		clientIP: conn.Conn().RemoteAddr().String(),
 		upstream: b.upstream,
 	}, nil
 }
 
 // A Session is returned after EHLO.
 type Session struct {
+	clientIP string
 	upstream string
 	user     string
 	password string
@@ -100,6 +102,6 @@ func (s *Session) toUpstream() error {
 	if err := smtp.SendMail(s.upstream, auth, s.from, []string{s.to}, rd); err != nil {
 		return err
 	}
-	log.Printf("send mail: %s, %s (%d)", s.from, s.to, len(s.data))
+	log.Printf("client: %s, send mail: %s, %s (%d)", s.clientIP, s.from, s.to, len(s.data))
 	return nil
 }
