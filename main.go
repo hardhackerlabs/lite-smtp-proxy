@@ -48,6 +48,7 @@ func main() {
 	srv.ReadTimeout = 10 * time.Second
 	srv.WriteTimeout = 10 * time.Second
 	srv.MaxMessageBytes = 1024 * 1024
+	srv.MaxLineLength = 4000
 	srv.MaxRecipients = 50
 	srv.AllowInsecureAuth = true
 
